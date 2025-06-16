@@ -22,7 +22,7 @@
 ## 📸 Screenshots
 
 ### 🏠 Home Page  
-![Home Page](https://i.imgur.com/your-home-image.png)
+![Home Page]([https://i.imgur.com/your-home-image.png](https://github.com/user-attachments/assets/ab6dfa6c-e104-42d8-ad4e-26460ff2d68c))
 
 ### 🎥 Movie Detail Page  
 ![Movie Details](https://i.imgur.com/your-detail-image.png)
