@@ -1,4 +1,4 @@
-const API_KEY = "227f8ae47b1c1df332b2e8aef9ef158f"
+const API_KEY = "your-api-key"
 const BASE_URL = "https://api.themoviedb.org/3"
 
 export const getPopularMovies = async() => {
