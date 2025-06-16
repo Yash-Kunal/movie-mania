@@ -27,11 +27,11 @@
 
 
 ### 🎥 Movie Detail Page  
-![Movie Details](https://i.imgur.com/your-detail-image.png)
+![Movie Details](src/assets/moviedetail.png)
 
 
 ### ❤️ Favourites Page  
-![Favourites](https://i.imgur.com/your-detail-image.png)
+![Favourites](src/assets/favourites.png)
 
 ---
 
