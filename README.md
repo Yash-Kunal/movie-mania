@@ -1,69 +1,88 @@
-# Movie Mania
+# 🎬 MovieMania
 
-📽️ MovieMania — Your Gateway to Cinematic Discoveries
-<p align="center"> <img src="https://img.shields.io/github/languages/top/Yash-Kunal/movie-mania?style=for-the-badge" /> <img src="https://img.shields.io/github/repo-size/Yash-Kunal/movie-mania?style=for-the-badge" /> <img src="https://img.shields.io/github/last-commit/Yash-Kunal/movie-mania?style=for-the-badge" /> </p>
-MovieMania is a beautiful and interactive movie discovery platform built with React.js, powered by the TMDB API. It helps users browse popular movies, view detailed info (like cast, director, IMDb ratings), and manage their personal list of favourite films with a single click.
+**MovieMania** is a modern and visually stylish movie discovery web app built with **React.js** and powered by the **TMDB API**. Explore the latest trending movies, view detailed information including cast, crew, and reviews, and manage your list of favourites — all in one place.
+
+---
+
+## 🌟 Features
+
+- 🔍 Browse and search for popular movies
+- 🖼️ Clean grid layout showing posters, title & release year
+- 🎬 Click a movie card to open a **detailed info page** including:
+  - Overview & release info
+  - IMDb rating
+  - Cast, director, and writers
+  - Reviews (if available)
+- ❤️ Add/remove movies to your Favourites
+- 🌈 Stylish background gradients and responsive UI
+- 💨 Fast SPA experience using React Router & Context API
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page  
+![Home Page](https://i.imgur.com/your-home-image.png)
+
+### 🎥 Movie Detail Page  
+![Movie Details](https://i.imgur.com/your-detail-image.png)
+
+> *(Replace the above image URLs with your own uploaded image links or GitHub paths)*
+
+---
+
+## 🛠️ Tech Stack
+
+- **React.js** — Frontend Framework  
+- **React Router** — SPA routing  
+- **TMDB API** — Source of movie data  
+- **Context API** — Global state management (for favourites)  
+- **CSS3** — Custom styling  
+- **Vite** — Lightning-fast dev server and build tool
+
+---
+
+## 📁 Project Structure
+
+src/
+│
+├── components/
+│ └── MovieCard.jsx
+│
+├── contexts/
+│ └── MovieContext.jsx
+│
+├── pages/
+│ ├── Home.jsx
+│ ├── MovieDetail.jsx
+│ └── Favourites.jsx
+│
+├── services/
+│ └── api.js
+│
+├── css/
+│ └── MovieCard.css
+│ └── MovieDetails.css
+│
+└── App.jsx
 
 
+---
 
+## ⚙️ Getting Started
 
+### 🧾 Prerequisites
 
+- Node.js (v16 or above)
+- npm or yarn
 
+### 🚀 Installation
 
-🌟 Features
-✅ Browse the most popular movies
-✅ View stunning movie posters, names, and release years
-✅ Click on any movie card to view full details
-✅ Detailed page includes:
-• Overview & Release Info
-• IMDb Rating
-• Cast, Director, Writers
-• Reviews (if available)
-✅ Mark and unmark your favourite movies ❤️
-✅ Fully responsive UI with classy gradients and modern styling
-✅ Lightweight and fast-loading SPA (Single Page Application)
-
-
-
-
-
-🛠️ Tech Stack
-React.js – Frontend Framework
-
-React Router – Routing for SPA
-
-TMDB API – Movie Data Provider
-
-Context API – State management for Favourites
-
-CSS3 – Custom styling with gradients
-
-Vite – Fast bundling & development server
-
-
-
-
-
-⚙️ Getting Started
-
-🔧 Prerequisites
-
-Node.js ≥ 16.x
-
-npm or yarn
-
-
-🚀 Installation
-
-bash
-
-
+```bash
 git clone https://github.com/Yash-Kunal/movie-mania.git
-
 cd movie-mania
-
 npm install
-
 npm run dev
 
-Your app will run on http://localhost:5173
+
+
