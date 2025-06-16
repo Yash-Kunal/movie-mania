@@ -20,10 +20,15 @@ MovieMania is a beautiful and interactive movie discovery platform built with Re
 
 🛠️ Tech Stack
 React.js – Frontend Framework
+
 React Router – Routing for SPA
+
 TMDB API – Movie Data Provider
+
 Context API – State management for Favourites
+
 CSS3 – Custom styling with gradients
+
 Vite – Fast bundling & development server
 
 
