@@ -30,6 +30,9 @@
 ![Movie Details](https://i.imgur.com/your-detail-image.png)
 
 
+### 🎥 Favourites Page  
+![Favourites](https://i.imgur.com/your-detail-image.png)
+
 ---
 
 ## 🛠️ Tech Stack
