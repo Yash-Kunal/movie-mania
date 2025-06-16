@@ -40,32 +40,6 @@
 - **CSS3** — Custom styling  
 - **Vite** — Lightning-fast dev server and build tool
 
----
-
-## 📁 Project Structure
-
-src/
-│
-├── components/
-│ └── MovieCard.jsx
-│
-├── contexts/
-│ └── MovieContext.jsx
-│
-├── pages/
-│ ├── Home.jsx
-│ ├── MovieDetail.jsx
-│ └── Favourites.jsx
-│
-├── services/
-│ └── api.js
-│
-├── css/
-│ └── MovieCard.css
-│ └── MovieDetails.css
-│
-└── App.jsx
-
 
 ---
 
