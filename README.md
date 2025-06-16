@@ -22,7 +22,7 @@
 ## 📸 Screenshots
 
 ### 🏠 Home Page  
-![Home Page](assets/homepage.png)
+![Home Page](assets/home.png)
 
 
 
