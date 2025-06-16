@@ -22,7 +22,8 @@
 ## 📸 Screenshots
 
 ### 🏠 Home Page  
-![Home Page](https://github.com/user-attachments/assets/ab6dfa6c-e104-42d8-ad4e-26460ff2d68c.png)
+![Home Page](assets/homepage.png)
+
 
 
 ### 🎥 Movie Detail Page  
