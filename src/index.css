@@ -1,0 +1,7 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1e1e60, #1f3b73, #2c5364);
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
