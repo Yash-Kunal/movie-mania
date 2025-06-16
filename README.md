@@ -29,7 +29,6 @@
 ### 🎥 Movie Detail Page  
 ![Movie Details](https://i.imgur.com/your-detail-image.png)
 
-> *(Replace the above image URLs with your own uploaded image links or GitHub paths)*
 
 ---
 
