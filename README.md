@@ -30,7 +30,7 @@
 ![Movie Details](https://i.imgur.com/your-detail-image.png)
 
 
-### 🎥 Favourites Page  
+### ❤️ Favourites Page  
 ![Favourites](https://i.imgur.com/your-detail-image.png)
 
 ---
