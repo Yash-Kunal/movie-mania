@@ -7,6 +7,7 @@
 ## 🌟 Features
 
 - 🔍 Browse and search for popular movies
+- ♾️ Infinite scrolling to load more movies as you scroll 
 - 🖼️ Clean grid layout showing posters, title & release year
 - 🎬 Click a movie card to open a **detailed info page** including:
   - Overview & release info
@@ -16,6 +17,7 @@
 - ❤️ Add/remove movies to your Favourites
 - 🌈 Stylish background gradients and responsive UI
 - 💨 Fast SPA experience using React Router & Context API
+
 
 ---
 
