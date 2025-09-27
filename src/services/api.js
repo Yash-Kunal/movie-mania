@@ -1,7 +1,14 @@
+import { MOCK_GENRES, MOCK_MOVIES } from '../data/mockData';
+
 // Use environment variable if available, otherwise fallback to hardcoded key
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY || "227f8ae47b1c1df332b2e8aef9ef158f";
 const BASE_URL = "https://api.themoviedb.org/3";
-import { MOCK_GENRES, MOCK_MOVIES } from '../data/mockData';
+
+// Debug environment variables in the API service
+console.log('API Service Initialization:');
+console.log('Environment:', import.meta.env.MODE);
+console.log('VITE_TMDB_API_KEY available:', !!import.meta.env.VITE_TMDB_API_KEY);
+console.log('Using fallback key:', !import.meta.env.VITE_TMDB_API_KEY);
 
 // Session-specific offline mode (no longer persists across sessions or devices)
 let OFFLINE_MODE = false;
