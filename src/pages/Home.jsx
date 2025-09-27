@@ -6,6 +6,7 @@ import "../css/MovieCard.css";
 import "../css/Home.css";
 import "../index.css";
 import Filters from '../components/Filters';
+import ErrorBoundary from "../components/ErrorBoundary";
 
 function Home() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -189,4 +190,11 @@ function Home() {
     );
 }
 
-export default Home;
+// Wrap the Home component with our error boundary
+const HomeWithErrorBoundary = () => (
+    <ErrorBoundary>
+        <Home />
+    </ErrorBoundary>
+);
+
+export default HomeWithErrorBoundary;

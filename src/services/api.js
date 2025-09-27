@@ -1,30 +1,48 @@
-const API_KEY = "227f8ae47b1c1df332b2e8aef9ef158f"
-const BASE_URL = "https://api.themoviedb.org/3"
-import { MOCK_GENRES, MOCK_MOVIES } from '../data/mockData'
+// Use environment variable if available, otherwise fallback to hardcoded key
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY || "227f8ae47b1c1df332b2e8aef9ef158f";
+const BASE_URL = "https://api.themoviedb.org/3";
+import { MOCK_GENRES, MOCK_MOVIES } from '../data/mockData';
 
-// Offline mode: once we detect a fetch failure, avoid hammering the network.
+// Session-specific offline mode (no longer persists across sessions or devices)
 let OFFLINE_MODE = false;
-const OFFLINE_KEY = 'mm_offline_mode';
-try {
-    const stored = typeof window !== 'undefined' && window.localStorage.getItem(OFFLINE_KEY);
-    OFFLINE_MODE = stored === '1';
-} catch {}
+let failureCount = 0;
+const MAX_FAILURES_BEFORE_OFFLINE = 3;
+const FAILURE_RESET_INTERVAL = 60000; // 1 minute
 
-function markOffline() {
+// Reset failure count periodically to allow retrying real API
+setInterval(() => {
+  if (failureCount > 0) {
+    console.log("Resetting API failure count to allow retrying");
+    failureCount = 0;
+    OFFLINE_MODE = false;
+  }
+}, FAILURE_RESET_INTERVAL);
+
+// Mark as offline temporarily after multiple failures
+function trackFailure() {
+  failureCount++;
+  console.log(`API failure ${failureCount}/${MAX_FAILURES_BEFORE_OFFLINE}`);
+  if (failureCount >= MAX_FAILURES_BEFORE_OFFLINE) {
+    console.log("Too many API failures, switching to offline mode temporarily");
     OFFLINE_MODE = true;
-    try { window.localStorage.setItem(OFFLINE_KEY, '1'); } catch {}
+  }
 }
 
 // Fetch with timeout helper
-async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, { ...options, signal: controller.signal });
-        return res;
-    } finally {
-        clearTimeout(id);
+async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    if (res.ok) {
+      // Reset failure count on success
+      failureCount = 0;
+      OFFLINE_MODE = false;
     }
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
 }
 
 export const getPopularMovies = async (page = 1) => {
@@ -37,8 +55,8 @@ export const getPopularMovies = async (page = 1) => {
         const data = await response.json();
         return data.results || [];
     } catch (err) {
-        // Mark offline and use mock data silently
-        markOffline();
+        console.warn("Popular movies fetch failed, using mock data:", err.message);
+        trackFailure();
         return makeMockPage(MOCK_MOVIES, page);
     }
 };
@@ -59,8 +77,8 @@ export const searchMovies = async(query) => {
         const data = await response.json();
         return data.results || [];
     } catch (err) {
-        // Mark offline and use mock data silently
-        markOffline();
+        console.warn("Search movies fetch failed, using mock data:", err.message);
+        trackFailure();
         const q = (query || '').toLowerCase();
         const filtered = MOCK_MOVIES.filter(m => (m.title || '').toLowerCase().includes(q));
         return makeMockPage(filtered.length ? filtered : MOCK_MOVIES, 1);
@@ -68,20 +86,48 @@ export const searchMovies = async(query) => {
 };
 
 export const getMovieDetails = async (id) => {
-    if (OFFLINE_MODE) return { id, title: "Mock Movie", overview: "This is a mock movie since the API is currently offline.", release_date: "2023-01-01" };
+    if (OFFLINE_MODE) return { 
+        id, 
+        title: "Mock Movie Details", 
+        overview: "This is a mock movie since the API is currently offline.", 
+        release_date: "2023-01-01",
+        poster_path: "/mock_poster.jpg",
+        vote_average: 7.5,
+        genres: [{ id: 28, name: "Action" }],
+        runtime: 120
+    };
     try {
         const response = await fetchWithTimeout(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
         if (!response.ok) throw new Error('Network response not ok');
         const data = await response.json();
         return data;
     } catch (err) {
-        markOffline();
-        return { id, title: "Mock Movie", overview: "This is a mock movie since the API is currently offline.", release_date: "2023-01-01" };
+        console.warn("Movie details fetch failed, using mock data:", err.message);
+        trackFailure();
+        return { 
+            id, 
+            title: "Mock Movie Details", 
+            overview: "This is a mock movie since the API is currently offline.", 
+            release_date: "2023-01-01",
+            poster_path: "/mock_poster.jpg",
+            vote_average: 7.5,
+            genres: [{ id: 28, name: "Action" }],
+            runtime: 120
+        };
     }
 };
 
 export const getMovieCredits = async (movieId) => {
-    if (OFFLINE_MODE) return { cast: [], crew: [] };
+    if (OFFLINE_MODE) return { 
+        cast: [
+            { id: 101, name: "Mock Actor 1", character: "Character 1" },
+            { id: 102, name: "Mock Actor 2", character: "Character 2" }
+        ], 
+        crew: [
+            { id: 201, name: "Mock Director", job: "Director" },
+            { id: 202, name: "Mock Writer", job: "Writer" }
+        ] 
+    };
     try {
         const response = await fetchWithTimeout(
             `${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`
@@ -90,13 +136,26 @@ export const getMovieCredits = async (movieId) => {
         const data = await response.json();
         return data;
     } catch (err) {
-        markOffline();
-        return { cast: [], crew: [] };
+        console.warn("Movie credits fetch failed, using mock data:", err.message);
+        trackFailure();
+        return { 
+            cast: [
+                { id: 101, name: "Mock Actor 1", character: "Character 1" },
+                { id: 102, name: "Mock Actor 2", character: "Character 2" }
+            ], 
+            crew: [
+                { id: 201, name: "Mock Director", job: "Director" },
+                { id: 202, name: "Mock Writer", job: "Writer" }
+            ] 
+        };
     }
 };
 
 export const getMovieVideos = async (movieId) => {
-    if (OFFLINE_MODE) return { results: [{ key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' }] };
+    if (OFFLINE_MODE) return { results: [
+        { id: "v1", key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' },
+        { id: "v2", key: 'dQw4w9WgXcQ', name: 'Mock Teaser', site: 'YouTube', type: 'Teaser' }
+    ]};
     try {
         const response = await fetchWithTimeout(
             `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`
@@ -105,8 +164,12 @@ export const getMovieVideos = async (movieId) => {
         const data = await response.json();
         return data;
     } catch (err) {
-        markOffline();
-        return { results: [{ key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' }] };
+        console.warn("Movie videos fetch failed, using mock data:", err.message);
+        trackFailure();
+        return { results: [
+            { id: "v1", key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' },
+            { id: "v2", key: 'dQw4w9WgXcQ', name: 'Mock Teaser', site: 'YouTube', type: 'Teaser' }
+        ]};
     }
 };
 
@@ -118,8 +181,8 @@ export const getGenres = async () => {
         const data = await response.json();
         return data.genres || [];
     } catch (err) {
-        // Mark offline and use mock data silently
-        markOffline();
+        console.warn("Genres fetch failed, using mock data:", err.message);
+        trackFailure();
         return MOCK_GENRES;
     }
 };
@@ -132,8 +195,8 @@ export const safeGetPopular = async (page = 1) => {
         const data = await res.json();
         return data.results || [];
     } catch (err) {
-        // Mark offline and use mock data silently
-        markOffline();
+        console.warn("Safe popular movies fetch failed, using mock data:", err.message);
+        trackFailure();
         return makeMockPage(MOCK_MOVIES, page);
     }
 };
@@ -166,8 +229,10 @@ export const getDiscoverMovies = async ({ page = 1, genreId, releaseYear, rating
         const data = await res.json();
         return data.results || [];
     } catch (err) {
-        // Mark offline and use mock data silently
-        markOffline();
+        console.warn("Discover movies fetch failed, using mock data:", err.message, {
+            page, filters: { genreId, releaseYear, rating }
+        });
+        trackFailure();
         return mockDiscover({ page, genreId, releaseYear, rating });
     }
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getMovieCredits, getMovieDetails, getMovieVideos } from "../services/api";
+import ErrorBoundary from "../components/ErrorBoundary";
 import "../css/MovieDetail.css"; // Make sure this file exists
 
 const MovieDetails = () => {
@@ -105,4 +106,11 @@ const MovieDetails = () => {
   );
 };
 
-export default MovieDetails;
+// Wrap the MovieDetails component with our error boundary
+const MovieDetailsWithErrorBoundary = () => (
+  <ErrorBoundary>
+    <MovieDetails />
+  </ErrorBoundary>
+);
+
+export default MovieDetailsWithErrorBoundary;
