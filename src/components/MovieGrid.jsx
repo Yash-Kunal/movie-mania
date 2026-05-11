@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion as Motion } from 'framer-motion';
 
 const MovieGrid = ({ movies, fetchMoreMovies }) => {
   const [isFetching, setIsFetching] = useState(false);
@@ -22,7 +22,7 @@ const MovieGrid = ({ movies, fetchMoreMovies }) => {
       {movies.map((movie, index) => {
         const isLastMovie = index === movies.length - 1;
         return (
-          <motion.div
+          <Motion.div
             key={movie.id}
             ref={isLastMovie ? lastMovieRef : null}
             className="movie-card bg-white rounded-lg shadow-md overflow-hidden"
@@ -40,7 +40,7 @@ const MovieGrid = ({ movies, fetchMoreMovies }) => {
               <p className="text-sm text-gray-600">Genre: {movie.genre}</p>
               <p className="text-sm text-gray-600">Year: {movie.releaseYear}</p>
             </div>
-          </motion.div>
+          </Motion.div>
         );
       })}
       {isFetching && <p className="col-span-full text-center">Loading more movies...</p>}

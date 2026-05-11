@@ -1,7 +1,7 @@
 import "../css/MovieCard.css";
 import { useMovieContext } from "../contexts/MovieContext";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import placeholder from "../assets/details.png";
 
 function MovieCard({ movie }) {
@@ -22,16 +22,22 @@ function MovieCard({ movie }) {
     }
   }
 
+  const posterUrl = movie.poster_path?.startsWith("http")
+    ? movie.poster_path
+    : movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : placeholder;
+
   return (
     <Link to={`/movie/${movie.id}`} className="movie-card-link">
-      <motion.div
+      <Motion.div
         className="movie-card"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
       >
         <div className="movie-poster">
           <img
-            src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : placeholder}
+            src={posterUrl}
             alt={movie.title}
           />
           <div className="movie-overlay">
@@ -47,7 +53,7 @@ function MovieCard({ movie }) {
           <h3>{movie.title}</h3>
           <p>{movie.release_date?.split("-")[0]}</p>
         </div>
-      </motion.div>
+      </Motion.div>
     </Link>
   );
 }

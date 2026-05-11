@@ -38,7 +38,9 @@ const MovieDetails = () => {
 
   const releaseYear = movie.release_date ? movie.release_date.slice(0, 4) : "N/A";
   const posterUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    ? movie.poster_path.startsWith("http")
+      ? movie.poster_path
+      : `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "";
 
   const director = credits.crew?.find(member => member.job === "Director")?.name || "N/A";

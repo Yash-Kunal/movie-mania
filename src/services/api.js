@@ -1,14 +1,14 @@
 import { MOCK_GENRES, MOCK_MOVIES } from '../data/mockData';
 
-// Use environment variable if available, otherwise fallback to hardcoded key
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY || "227f8ae47b1c1df332b2e8aef9ef158f";
-const BASE_URL = "https://api.themoviedb.org/3";
+// Use environment variable if available, otherwise fallback to the provided OMDb key.
+const API_KEY = import.meta.env.VITE_OMDB_API_KEY || "b5b0b8ca";
+const BASE_URL = "https://www.omdbapi.com/";
 
 // Debug environment variables in the API service
 console.log('API Service Initialization:');
 console.log('Environment:', import.meta.env.MODE);
-console.log('VITE_TMDB_API_KEY available:', !!import.meta.env.VITE_TMDB_API_KEY);
-console.log('Using fallback key:', !import.meta.env.VITE_TMDB_API_KEY);
+console.log('VITE_OMDB_API_KEY available:', !!import.meta.env.VITE_OMDB_API_KEY);
+console.log('Using fallback key:', !import.meta.env.VITE_OMDB_API_KEY);
 
 // Session-specific offline mode (no longer persists across sessions or devices)
 let OFFLINE_MODE = false;
@@ -55,12 +55,11 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
 export const getPopularMovies = async (page = 1) => {
     if (OFFLINE_MODE) return makeMockPage(MOCK_MOVIES, page);
     try {
-        const response = await fetchWithTimeout(
-            `${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`
-        );
+        const response = await fetchWithTimeout(buildOmdbUrl({ s: "movie", type: "movie", page }));
         if (!response.ok) throw new Error('Network response not ok');
         const data = await response.json();
-        return data.results || [];
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return (data.Search || []).map(normalizeSearchMovie);
     } catch (err) {
         console.warn("Popular movies fetch failed, using mock data:", err.message);
         trackFailure();
@@ -75,14 +74,11 @@ export const searchMovies = async(query) => {
         return makeMockPage(filtered.length ? filtered : MOCK_MOVIES, 1);
     }
     try {
-        const response = await fetchWithTimeout(
-            `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(
-                query
-            )}`
-        );
+        const response = await fetchWithTimeout(buildOmdbUrl({ s: query, type: "movie", page: 1 }));
         if (!response.ok) throw new Error('Network response not ok');
         const data = await response.json();
-        return data.results || [];
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return (data.Search || []).map(normalizeSearchMovie);
     } catch (err) {
         console.warn("Search movies fetch failed, using mock data:", err.message);
         trackFailure();
@@ -104,10 +100,11 @@ export const getMovieDetails = async (id) => {
         runtime: 120
     };
     try {
-        const response = await fetchWithTimeout(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
+        const response = await fetchWithTimeout(buildOmdbUrl({ i: id, plot: "full" }));
         if (!response.ok) throw new Error('Network response not ok');
         const data = await response.json();
-        return data;
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return normalizeDetailedMovie(data);
     } catch (err) {
         console.warn("Movie details fetch failed, using mock data:", err.message);
         trackFailure();
@@ -136,12 +133,11 @@ export const getMovieCredits = async (movieId) => {
         ] 
     };
     try {
-        const response = await fetchWithTimeout(
-            `${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`
-        );
+        const response = await fetchWithTimeout(buildOmdbUrl({ i: movieId, plot: "short" }));
         if (!response.ok) throw new Error('Network response not ok');
         const data = await response.json();
-        return data;
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return normalizeCredits(data);
     } catch (err) {
         console.warn("Movie credits fetch failed, using mock data:", err.message);
         trackFailure();
@@ -158,49 +154,22 @@ export const getMovieCredits = async (movieId) => {
     }
 };
 
-export const getMovieVideos = async (movieId) => {
-    if (OFFLINE_MODE) return { results: [
-        { id: "v1", key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' },
-        { id: "v2", key: 'dQw4w9WgXcQ', name: 'Mock Teaser', site: 'YouTube', type: 'Teaser' }
-    ]};
-    try {
-        const response = await fetchWithTimeout(
-            `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`
-        );
-        if (!response.ok) throw new Error('Network response not ok');
-        const data = await response.json();
-        return data;
-    } catch (err) {
-        console.warn("Movie videos fetch failed, using mock data:", err.message);
-        trackFailure();
-        return { results: [
-            { id: "v1", key: 'dQw4w9WgXcQ', name: 'Mock Trailer', site: 'YouTube', type: 'Trailer' },
-            { id: "v2", key: 'dQw4w9WgXcQ', name: 'Mock Teaser', site: 'YouTube', type: 'Teaser' }
-        ]};
-    }
+export const getMovieVideos = async () => {
+    return { results: [] };
 };
 
 export const getGenres = async () => {
-    if (OFFLINE_MODE) return MOCK_GENRES;
-    try {
-        const response = await fetchWithTimeout(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
-        if (!response.ok) throw new Error('Network response not ok');
-        const data = await response.json();
-        return data.genres || [];
-    } catch (err) {
-        console.warn("Genres fetch failed, using mock data:", err.message);
-        trackFailure();
-        return MOCK_GENRES;
-    }
+    return MOCK_GENRES;
 };
 
 export const safeGetPopular = async (page = 1) => {
     if (OFFLINE_MODE) return makeMockPage(MOCK_MOVIES, page);
     try {
-        const res = await fetchWithTimeout(`${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`);
+        const res = await fetchWithTimeout(buildOmdbUrl({ s: "movie", type: "movie", page }));
         if (!res.ok) throw new Error('Network response not ok');
         const data = await res.json();
-        return data.results || [];
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return (data.Search || []).map(normalizeSearchMovie);
     } catch (err) {
         console.warn("Safe popular movies fetch failed, using mock data:", err.message);
         trackFailure();
@@ -209,32 +178,19 @@ export const safeGetPopular = async (page = 1) => {
 };
 
 export const getDiscoverMovies = async ({ page = 1, genreId, releaseYear, rating } = {}) => {
-    const params = new URLSearchParams({
-        api_key: API_KEY,
-        include_adult: 'false',
-        language: 'en-US',
-        sort_by: 'popularity.desc',
-        page: String(page),
-    });
-    if (genreId) params.set('with_genres', String(genreId));
-    if (releaseYear && Array.isArray(releaseYear)) {
-        const [minY, maxY] = releaseYear;
-        if (minY) params.set('primary_release_date.gte', `${minY}-01-01`);
-        if (maxY) params.set('primary_release_date.lte', `${maxY}-12-31`);
-    }
-    if (rating && Array.isArray(rating)) {
-        const [minR, maxR] = rating;
-        if (minR != null) params.set('vote_average.gte', String(minR));
-        if (maxR != null) params.set('vote_average.lte', String(maxR));
-    }
     if (OFFLINE_MODE) {
         return mockDiscover({ page, genreId, releaseYear, rating });
     }
     try {
-        const res = await fetchWithTimeout(`${BASE_URL}/discover/movie?${params.toString()}`);
+        const genre = MOCK_GENRES.find(g => String(g.id) === String(genreId));
+        const searchTerm = genre?.name || "movie";
+        const res = await fetchWithTimeout(buildOmdbUrl({ s: searchTerm, type: "movie", page }));
         if (!res.ok) throw new Error('Network response not ok');
         const data = await res.json();
-        return data.results || [];
+        if (data.Response === "False") throw new Error(data.Error || 'OMDb request failed');
+        return (data.Search || [])
+            .map(normalizeSearchMovie)
+            .filter(movie => matchesFilters(movie, { releaseYear, rating }));
     } catch (err) {
         console.warn("Discover movies fetch failed, using mock data:", err.message, {
             page, filters: { genreId, releaseYear, rating }
@@ -243,6 +199,79 @@ export const getDiscoverMovies = async ({ page = 1, genreId, releaseYear, rating
         return mockDiscover({ page, genreId, releaseYear, rating });
     }
 };
+
+function buildOmdbUrl(params) {
+    const searchParams = new URLSearchParams({
+        apikey: API_KEY,
+        ...Object.fromEntries(
+            Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== "")
+        ),
+    });
+    return `${BASE_URL}?${searchParams.toString()}`;
+}
+
+function normalizeSearchMovie(movie) {
+    return {
+        id: movie.imdbID,
+        imdbID: movie.imdbID,
+        title: movie.Title,
+        release_date: yearToDate(movie.Year),
+        poster_path: movie.Poster && movie.Poster !== "N/A" ? movie.Poster : "",
+        vote_average: null,
+        type: movie.Type,
+    };
+}
+
+function normalizeDetailedMovie(movie) {
+    return {
+        ...normalizeSearchMovie(movie),
+        overview: movie.Plot && movie.Plot !== "N/A" ? movie.Plot : "",
+        genres: splitNames(movie.Genre).map((name, index) => ({ id: index + 1, name })),
+        runtime: parseRuntime(movie.Runtime),
+        vote_average: movie.imdbRating && movie.imdbRating !== "N/A" ? Number(movie.imdbRating) : null,
+        director: movie.Director,
+        writer: movie.Writer,
+        actors: movie.Actors,
+    };
+}
+
+function normalizeCredits(movie) {
+    return {
+        cast: splitNames(movie.Actors).map((name, index) => ({ id: `${movie.imdbID}-cast-${index}`, name })),
+        crew: [
+            ...splitNames(movie.Director).map((name, index) => ({ id: `${movie.imdbID}-director-${index}`, name, job: "Director" })),
+            ...splitNames(movie.Writer).map((name, index) => ({ id: `${movie.imdbID}-writer-${index}`, name, job: "Writer" })),
+        ],
+    };
+}
+
+function splitNames(value) {
+    if (!value || value === "N/A") return [];
+    return value.split(",").map(item => item.trim()).filter(Boolean);
+}
+
+function yearToDate(year) {
+    const match = String(year || "").match(/\d{4}/);
+    return match ? `${match[0]}-01-01` : "";
+}
+
+function parseRuntime(runtime) {
+    const minutes = String(runtime || "").match(/\d+/);
+    return minutes ? Number(minutes[0]) : null;
+}
+
+function matchesFilters(movie, { releaseYear, rating } = {}) {
+    const year = movie.release_date ? Number(movie.release_date.slice(0, 4)) : null;
+    if (releaseYear && Array.isArray(releaseYear) && year) {
+        const [minY, maxY] = releaseYear;
+        if (year < (minY || 0) || year > (maxY || 9999)) return false;
+    }
+    if (rating && Array.isArray(rating) && movie.vote_average != null) {
+        const [minR, maxR] = rating;
+        if (movie.vote_average < (minR ?? 0) || movie.vote_average > (maxR ?? 10)) return false;
+    }
+    return true;
+}
 
 // helper to create unique ids per page from mock list so React keys remain stable and infinite scroll can append
 function makeMockPage(list, page) {

@@ -1,6 +1,6 @@
 # 🎬 MovieMania – A Movie Discovery Web App
 
-MovieMania is a sleek and interactive web app that lets users browse, search, and explore movies using **The Movie Database (TMDB) API**. Users can view detailed information about movies, including cast, crew, reviews, and ratings, while also saving their favourites for easy access.  
+MovieMania is a sleek and interactive web app that lets users browse, search, and explore movies using the **OMDb API**. Users can view detailed information about movies, including cast, crew, and IMDb ratings, while also saving their favourites for easy access.  
 
 ---
 
@@ -11,7 +11,6 @@ MovieMania is a sleek and interactive web app that lets users browse, search, an
   - Overview & release info  
   - IMDb rating  
   - Cast, director, and writers  
-  - Movie trailers and teasers
 - ❤️ Add/remove movies to your Favourites  
 - 🔄 **Infinite Scrolling** to load more movies as you scroll  
 - 🌈 Stylish background gradients and responsive UI  
@@ -23,7 +22,7 @@ MovieMania is a sleek and interactive web app that lets users browse, search, an
 ## 🛠️ Tech Stack
 - **Frontend:** React 19, Vite 6, Framer Motion
 - **State Management:** React Context API  
-- **API:** [TMDB API](https://www.themoviedb.org/documentation/api)  
+- **API:** [OMDb API](https://www.omdbapi.com/)  
 - **Build & Deployment:** Vite, Vercel  
 
 ---
@@ -57,7 +56,7 @@ npm install
 ### 3️⃣ Set up environment variables
 Create a `.env` file in the root directory and add:
 ```
-VITE_TMDB_API_KEY=your_api_key_here
+VITE_OMDB_API_KEY=your_api_key_here
 ```
 
 ### 4️⃣ Run in development mode
@@ -82,8 +81,8 @@ The app will be available at `http://localhost:5173`
    - Output Directory: `dist`
    - Install Command: `npm install`
 5. Add environment variables:
-   - Name: `VITE_TMDB_API_KEY`
-   - Value: Your TMDB API key
+   - Name: `VITE_OMDB_API_KEY`
+   - Value: Your OMDb API key
 6. Click "Deploy"
 
 ### Method 2: Deploy with Vercel CLI
@@ -105,8 +104,8 @@ The app will be available at `http://localhost:5173`
 
 4. Follow the prompts to link to your Vercel account and set up the project
 5. When asked about environment variables, add:
-   - Name: `VITE_TMDB_API_KEY`
-   - Value: Your TMDB API key
+   - Name: `VITE_OMDB_API_KEY`
+   - Value: Your OMDb API key
 
 ### Important Notes
 
